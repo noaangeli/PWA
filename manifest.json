@@ -1,0 +1,26 @@
+{
+  "name": "PWA-ConvertisseurMonnaie",
+  "short_name": "Devises",
+  "description": "Application pour convertir la monnaie",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#000112",
+  "dir": "auto",
+  "lang": "fr-FR",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "icon512_maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icon512_rounded.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

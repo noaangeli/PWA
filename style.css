@@ -1,0 +1,82 @@
+:root {
+  --bg-color: #000112;
+  --card-bg: #1e293b;
+  --text-color: #ffffff;
+  --accent-color: #3b82f6;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.app-header {
+  background: var(--card-bg);
+  padding: 1rem;
+  text-align: center;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+}
+
+.container {
+  padding: 20px;
+  flex: 1;
+}
+
+.converter-card {
+  background: var(--card-bg);
+  padding: 2rem;
+  border-radius: 15px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+.input-group {
+  margin-bottom: 1.5rem;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #94a3b8;
+}
+
+input, select {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #334155;
+  background: #0f172a;
+  color: white;
+  font-size: 1rem;
+}
+
+.result-section {
+  text-align: center;
+  margin-top: 2rem;
+}
+
+#result-value {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: var(--accent-color);
+}
+
+.offline-banner {
+  background: #ef4444;
+  text-align: center;
+  padding: 10px;
+  display: none;
+}
+
+.tab-bar {
+  background: var(--card-bg);
+  padding: 1rem;
+  text-align: center;
+  font-size: 0.8rem;
+}
+
+.hidden { display: none; }
