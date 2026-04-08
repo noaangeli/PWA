@@ -8,36 +8,51 @@ async function convert() {
     const target = targetSelect.value;
     const url = `https://v6.exchangerate-api.com/v6/${API_KEY}/latest/${base}`;
     
+    // 💡 NOUVEAUTÉ : On vérifie la connexion AVANT de faire quoi que ce soit
+    if (!navigator.onLine) {
+        console.log("🌐 Mode hors-ligne détecté immédiatement.");
+        await fetchFromCache(base, target);
+        return; // On arrête la fonction ici, pas besoin de faire le "try/catch"
+    }
+    
+    // Si on a internet, on tente l'API normalement
     try {
-        // 1. Tenter de récupérer les données en ligne
         const response = await fetch(url);
-        if (!response.ok) throw new Error("Erreur réseau");
+        if (!response.ok) throw new Error("Erreur API");
         
         const data = await response.json();
         
-        // 2. Sauvegarder les données dans IndexedDB pour plus tard
-        const db = await dbPromise; // Utilise la variable globale de db.js
-        await db.put('rates', data);
+        if (window.dbPromise) {
+            const db = await window.dbPromise; 
+            await db.put('rates', data);
+        }
         
-        // Mettre à jour l'interface (En ligne)
         updateUI(data, target, false);
 
     } catch (err) {
-        console.warn("Échec du fetch, tentative de récupération depuis IndexedDB...", err);
-        
-        // 3. Mode Hors-ligne : Récupérer les taux depuis IndexedDB
-        const db = await dbPromise;
+        // Ce catch sert au cas où le réseau coupe PENDANT la requête
+        console.warn("La requête a échoué en cours de route", err);
+        await fetchFromCache(base, target);
+    }
+}
+
+// J'ai isolé la logique du cache dans une fonction propre pour éviter de se répéter
+async function fetchFromCache(base, target) {
+    if (window.dbPromise) {
+        const db = await window.dbPromise;
         const cachedData = await db.get('rates', base);
         
         if (cachedData) {
             updateUI(cachedData, target, true);
-        } else {
-            // Si aucune donnée n'est en cache pour cette monnaie
-            document.getElementById('result-value').innerText = "Indisponible";
-            document.getElementById('last-update').innerText = "Pas de données en cache";
-            document.getElementById('offline-banner').style.display = 'block';
+            return;
         }
     }
+    
+    // Si la base de données est vide
+    document.getElementById('result-value').innerText = "---";
+    document.getElementById('last-update').innerText = "Données non disponibles";
+    document.getElementById('offline-banner').style.display = 'block';
+    document.getElementById('offline-banner').innerText = "⚠️ Connectez-vous pour télécharger les taux.";
 }
 
 // Fonction pour mettre à jour l'affichage

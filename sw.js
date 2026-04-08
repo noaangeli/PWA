@@ -1,47 +1,51 @@
-const SHELL_CACHE = "shell-v6";
+const SHELL_CACHE = "shell-v9"; // On passe en v8 pour forcer la mise à jour
+
 const ASSETS = [
   "./",
   "./index.html",
   "./style.css",
   "./app.js",
-  "./db.js", // Assure-toi que db.js est aussi mis en cache
+  "./db.js",
+  "https://cdn.jsdelivr.net/npm/idb@7/build/umd.js",
+  "https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap", // Les polices Google ajoutées ici !
   "./manifest.json",
   "./icon512_maskable.png",
-  "./icon512_rounded.png"
+  "./icon512_rounded.png",
 ];
 
-// Installation : On met en cache uniquement les fichiers de l'interface
+// Installation
 self.addEventListener("install", (e) => {
-  e.waitUntil(
-    caches.open(SHELL_CACHE).then(cache => cache.addAll(ASSETS))
-  );
-  self.skipWaiting();
+  e.waitUntil(caches.open(SHELL_CACHE).then((cache) => cache.addAll(ASSETS)));
+  self.skipWaiting(); // Force l'installation immédiate
 });
 
-// Activation : Nettoyage des anciens caches
+// Activation
 self.addEventListener("activate", (e) => {
   e.waitUntil(
-    caches.keys().then(keys => {
+    caches.keys().then((keys) => {
       return Promise.all(
-        keys.filter(key => key !== SHELL_CACHE).map(key => caches.delete(key))
+        keys.filter((key) => key !== SHELL_CACHE).map((key) => caches.delete(key))
       );
     })
   );
+  self.clients.claim(); // Force la prise de contrôle sur toutes les pages ouvertes
 });
 
-// Fetch : Stratégie Cache-First pour l'interface uniquement
+// Fetch
 self.addEventListener("fetch", (e) => {
   const url = new URL(e.request.url);
 
-  // On ignore les requêtes vers l'API dans le SW 
-  // car app.js s'en occupe avec IndexedDB
+  // On ignore l'API des devises
   if (url.hostname.includes("exchangerate-api.com")) {
-    return; 
+    return;
   }
 
   e.respondWith(
-    caches.match(e.request).then(response => {
-      return response || fetch(e.request);
+    caches.match(e.request).then((response) => {
+      // Retourne le cache OU tente le réseau OU capture l'erreur silencieusement
+      return response || fetch(e.request).catch(() => {
+          console.warn(`[Service Worker] Impossible de charger ${url.href} hors-ligne.`);
+      });
     })
   );
 });
